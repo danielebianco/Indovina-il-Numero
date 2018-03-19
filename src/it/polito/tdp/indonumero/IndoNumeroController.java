@@ -15,15 +15,9 @@ import javafx.scene.layout.HBox;
 
 public class IndoNumeroController {
 	
-	private int NMAX = 100;
-	private int TMAX = 7;
-	
-	private int segreto;  // numero da indovinare
-	private int tentativi;  // tentativi effettuati
-	
-	private boolean inGame = false;
+	Model model;
 
-    @FXML // ResourceBundle that was given to the FXMLLoader
+	@FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
 
     @FXML // URL location of the FXML file that was given to the FXMLLoader
@@ -50,10 +44,7 @@ public class IndoNumeroController {
     @FXML
     void handleNuova(ActionEvent event) {
     	
-    	this.segreto = (int)(Math.random()*NMAX) + 1;
-    	
-    	this.tentativi = 0;
-    	this.inGame = true;
+    	model.newGame();
     	
     	this.btnNuova.setDisable(true);
     	this.boxGioco.setDisable(false);
@@ -88,7 +79,7 @@ public class IndoNumeroController {
     			txtLog.appendText("Complimenti, hai vinto!\n");
     			boxGioco.setDisable(true);
     			btnNuova.setDisable(false);
-    			this.inGame = false;
+    			inGame = false;
     		}
     		else {
     			// tentativo fallito
@@ -100,7 +91,7 @@ public class IndoNumeroController {
     				txtLog.appendText(String.format("Peccato, hai perso! Il numero era: %d\n", this.segreto));
         			boxGioco.setDisable(true);
         			btnNuova.setDisable(false);
-        			this.inGame = false;
+        			inGame = false;
     			}
     			else {
     				if(num<segreto) {
@@ -130,4 +121,8 @@ public class IndoNumeroController {
         assert txtLog != null : "fx:id=\"txtLog\" was not injected: check your FXML file 'IndoNumero.fxml'.";
 
     }
+    
+    public void setModel(Model model) {
+		this.model = model;
+	}
 }
