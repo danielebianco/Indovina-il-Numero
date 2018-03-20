@@ -2,13 +2,16 @@ package it.polito.tdp.indonumero;
 
 import java.security.InvalidParameterException;
 
+import javafx.beans.property.*;
+
 public class Model {
 	
 	private int NMAX;
 	private int TMAX;
 	
 	private int segreto;  // numero da indovinare
-	private int tentativi;  // tentativi effettuati
+//	private int tentativi;  // tentativi effettuati
+	private IntegerProperty tentativi = new SimpleIntegerProperty();
 	
 	private boolean inGame;
 	
@@ -23,7 +26,7 @@ public class Model {
 	 */
 	public void newGame() {
 		this.segreto = (int)(Math.random()*NMAX) + 1;
-    	this.tentativi = 0;
+    	this.tentativi.set(0);;
     	this.inGame = true;
 	}
 		
@@ -39,27 +42,34 @@ public class Model {
 			throw new IllegalStateException("Partita non attiva!");
 		}
 		
-		if(t<1 || t>this.NMAX) {
+		if(!valoreValido(t)) {
 			throw new InvalidParameterException("Tentativo fuori range!");
 		}
 		
-		this.tentativi++;
+		this.tentativi.set(tentativi.get()+1);
 		
-		if (t==segreto)
+		if(this.tentativi.get() == this.TMAX) {
+			this.inGame = false;
+		}
+		
+		if (t==segreto) {
+			this.inGame = false;
 			return 0;
+		}
+			
 		if (t<segreto)
 			return -1;
 		return +1;
+	}
+	
+	public boolean valoreValido(int tentativo) {
+		return tentativo>=1 && tentativo<=this.NMAX;
 	}
 	
 	public boolean isInGame() {
 		return inGame;
 	}
 	
-	public int getTentativi() {
-		return tentativi;
-	}
-
 	public int getNMAX() {
 		return NMAX;
 	}
@@ -67,4 +77,17 @@ public class Model {
 	public int getTMAX() {
 		return TMAX;
 	}
+	
+	public int getSegreto() {
+		return segreto;
+	}
+
+	public final IntegerProperty tentativiProperty() {
+		return this.tentativi;
+	}
+ 	
+	public final int getTentativi() {
+		return this.tentativiProperty().get();
+	}
+		
 }

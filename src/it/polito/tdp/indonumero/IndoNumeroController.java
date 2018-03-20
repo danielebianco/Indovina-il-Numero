@@ -12,6 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.util.converter.NumberStringConverter;
 
 public class IndoNumeroController {
 	
@@ -48,11 +49,11 @@ public class IndoNumeroController {
     	
     	this.btnNuova.setDisable(true);
     	this.boxGioco.setDisable(false);
-    	this.txtCurr.setText(String.format("%d", this.tentativi));
-    	this.txtMax.setText(String.format("%d", this.TMAX));
+    	this.txtMax.setText(String.format("%d", model.getTMAX()));
     	this.txtLog.clear();
     	this.txtTentativo.clear();
-    	this.txtLog.appendText(String.format("Indovina il numero segreto tra %d e %d\n", 1, NMAX));    	
+    	
+    	this.txtLog.appendText(String.format("Indovina il numero segreto tra %d e %d\n", 1, model.getNMAX()));    	
     }
 
     @FXML
@@ -68,42 +69,33 @@ public class IndoNumeroController {
     		int num = Integer.parseInt(numS);
     		// il numero era effettivamente un intero
     		
-    		if(num<1 || num>NMAX) {
+    		if(!model.valoreValido(num)) {
     			// numero fuori range
     			txtLog.appendText("Il numero e' fuori dall'intervallo consentito!\n");
     			return;
     		} 
     		
-    		if(num==this.segreto) {
-    			// ha indovinato
+    		int risultato = model.tentativo(num);
+    		
+    		if(risultato==0) {
     			txtLog.appendText("Complimenti, hai vinto!\n");
-    			boxGioco.setDisable(true);
-    			btnNuova.setDisable(false);
-    			inGame = false;
+    		}
+    		else if(risultato<0) {
+    			txtLog.appendText("Troppo basso\n");
     		}
     		else {
-    			// tentativo fallito
-    			this.tentativi++;
-    			this.txtCurr.setText(String.format("%d", this.tentativi));
-    			
-    			if(tentativi==TMAX) {
-    				// ha perso
-    				txtLog.appendText(String.format("Peccato, hai perso! Il numero era: %d\n", this.segreto));
-        			boxGioco.setDisable(true);
+    			txtLog.appendText("Troppo alto\n");
+    		}
+    		
+    		if(!model.isInGame()) {
+    			//la partita e' finita
+    			if(risultato != 0) {
+    				txtLog.appendText(String.format("Peccato, hai perso! Il numero era: %d\n", model.getSegreto()));
+    				boxGioco.setDisable(true);
         			btnNuova.setDisable(false);
-        			inGame = false;
-    			}
-    			else {
-    				if(num<segreto) {
-    					// troppo basso
-    					txtLog.appendText("Troppo basso\n");
-    				}
-    				else {
-    					//troppo alto
-    					txtLog.appendText("Troppo alto\n");
-    				} 
     			}
     		}
+    		
     	} catch(NumberFormatException ex) {
     		txtLog.appendText("Il dato inserito non è numerico!\n");
     		return;
@@ -124,5 +116,7 @@ public class IndoNumeroController {
     
     public void setModel(Model model) {
 		this.model = model;
+		
+		txtCurr.textProperty().bindBidirectional(model.tentativiProperty(), new NumberStringConverter());
 	}
 }
